@@ -26,6 +26,9 @@ class CartItem
     #[ORM\Column(length: 255)]
     private ?string $action = null;
 
+    #[ORM\Column]
+    private ?int $cartInfoId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class CartItem
     public function setAction(string $action): self
     {
         $this->action = $action;
+
+        return $this;
+    }
+
+    public function getCartInfoId(): ?int
+    {
+        return $this->cartInfoId;
+    }
+
+    public function setCartInfoId(int $cartInfoId): self
+    {
+        $this->cartInfoId = $cartInfoId;
 
         return $this;
     }

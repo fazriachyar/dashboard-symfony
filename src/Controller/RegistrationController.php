@@ -13,7 +13,6 @@ use App\Entity\User;
 /**
  * @Route("/api", name="api_")
  */
-  
 class RegistrationController extends AbstractController
 {
     /**
@@ -34,13 +33,24 @@ class RegistrationController extends AbstractController
 
         $user->setPassword($hashedPassword);
         $user->setUsername($data['username']);
+
         if(isset($data['email'])){
             $user->setEmail($data['email']);
+        }
+        if(isset($data['type'])){
+            if($data['type'] == "customer"){
+                $user->setIsCustomer(1);
+                $user->setIsStaff(0);
+            }
+            elseif($data['type'] == "staff"){
+                $user->setIsStaff(1);
+                $user->setIsCustomer(0);
+            }
         }
 
         $em->persist($user);
         $em->flush();
   
-        return $this->json(['message' => 'Registered Successfully']);
+        return $this->json(['message' => 'Register Success !']);
     }
 }

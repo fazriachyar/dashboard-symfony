@@ -39,6 +39,48 @@ class CartItemRepository extends ServiceEntityRepository
         }
     }
 
+    public function findCartByCustomerId($customerId): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT
+                cart_item.cart_info_id as id,
+                cart_item.product_quantity as quantity,
+                product.name as productName,
+                cart_info.customer_id as customerId,
+                cart_item.add_time as addTime
+            FROM
+                cart_item
+            LEFT JOIN cart_info ON cart_item.cart_info_id = cart_info.id AND cart_info.action != 'D'
+            LEFT JOIN product ON cart_item.product_id = product.id AND product.action != 'D'
+            WHERE
+                cart_info.customer_id = ".$customerId." AND
+                cart_item.action != 'D'
+            ORDER BY cart_item.id DESC
+        ";
+
+        return $conn->prepare($sql)->fetchAll();
+    }
+
+    public function removeCartItem($cartInfoId)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            UPDATE
+                cart_item
+            SET
+                cart_item.action = 'D',
+                cart_item.add_time = now()
+            WHERE
+                cart_item.cart_info_id = ".$cartInfoId." AND
+                cart_item.action != 'D'
+        ";
+
+        return $conn->prepare($sql)->executeQuery();
+    }
+
 //    /**
 //     * @return CartItem[] Returns an array of CartItem objects
 //     */
