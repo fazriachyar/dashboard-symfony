@@ -66,29 +66,60 @@ class CartController extends AbstractController
 
             foreach($data['item'] as $key => $item)
             {
-                $cartItem = new CartItem();
-                $cartItem->setProductId($item['productId']);
-                $cartItem->setProductQuantity($item['quantity']);
-                $cartItem->setCartInfoId($cartInfo->getId());
-                $cartItem->setAction('I');
-                $cartItem->setAddTime(new \Datetime());
-    
-                $em->persist($cartItem);
+                $checkProduct = $em->getRepository(CartItem::class)
+                    ->findOneBy([
+                        "productId" => $item['productId'],
+                        "action" => ['U','I']
+                    ]);
+
+                if($checkProduct){
+                    $checkProduct->setProductQuantity($item['quantity']);
+                    $checkProduct->setCartInfoId($cartInfo->getId());
+                    $checkProduct->setAction('I');
+                    $checkProduct->setAddTime(new \Datetime());
+        
+                    $em->persist($checkProduct);
+                }
+                else{
+                    $cartItem = new CartItem();
+                    $cartItem->setProductId($item['productId']);
+                    $cartItem->setProductQuantity($item['quantity']);
+                    $cartItem->setCartInfoId($cartInfo->getId());
+                    $cartItem->setAction('I');
+                    $cartItem->setAddTime(new \Datetime());
+        
+                    $em->persist($cartItem);
+                }
             }
             $em->flush();
-    
         }
         else{
             foreach($data['item'] as $key => $item)
             {
-                $cartItem = new CartItem();
-                $cartItem->setProductId($item['productId']);
-                $cartItem->setProductQuantity($item['quantity']);
-                $cartItem->setCartInfoId($cartInfo->getId());
-                $cartItem->setAction('I');
-                $cartItem->setAddTime(new \Datetime());
-    
-                $em->persist($cartItem);
+                $checkProduct = $em->getRepository(CartItem::class)
+                    ->findOneBy([
+                        "productId" => $item['productId'],
+                        "action" => ['U','I']
+                    ]);
+
+                if($checkProduct){
+                    $checkProduct->setProductQuantity($item['quantity']);
+                    $checkProduct->setCartInfoId($checkCartInfo->getId());
+                    $checkProduct->setAction('I');
+                    $checkProduct->setAddTime(new \Datetime());
+        
+                    $em->persist($checkProduct);
+                }
+                else{
+                    $cartItem = new CartItem();
+                    $cartItem->setProductId($item['productId']);
+                    $cartItem->setProductQuantity($item['quantity']);
+                    $cartItem->setCartInfoId($checkCartInfo->getId());
+                    $cartItem->setAction('I');
+                    $cartItem->setAddTime(new \Datetime());
+        
+                    $em->persist($cartItem);
+                }
             }
             $em->flush();
         }
@@ -107,11 +138,10 @@ class CartController extends AbstractController
 
         $cartInfo = $em->getRepository(CartInfo::class)
             ->findOneBy([
-                'id' => $data['id'],
+                'customerId' => $this->getUser()->getId(),
                 "action" => ['I','U']
             ]);
 
-        $cartInfo->setCustomerId($this->getUser()->getId());
         $cartInfo->setAction('U');
         $cartInfo->setAddTime(new \Datetime());
 
@@ -119,9 +149,9 @@ class CartController extends AbstractController
         $em->flush();
         
         $deleteCartItem = $em->getRepository(CartItem::class)
-            ->removeCartItem($data['id']);
+            ->removeCartItem($cartInfo->getId());
 
-        foreach($data['item'] as $key -> $item)
+        foreach($data['item'] as $key => $item)
         {
             $cartItem = new CartItem();
             $cartItem->setProductId($item['productId']);
