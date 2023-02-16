@@ -7,7 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Entity\Cart;
+use App\Entity\CartInfo;
+use App\Entity\CartItem;
 
 /**
  * @Route("/api", name="api_")
@@ -15,15 +16,15 @@ use App\Entity\Cart;
 class CartController extends AbstractController
 {
     /**
-     * @Route("/cart/view/:customerId", name="cart_view_by_customer_id", methods={"GET"})
+     * @Route("/cart", name="cart_view_by_customer_id", methods={"GET"})
      */
-    public function viewCartByCustomerIdAction(ManagerRegistry $doctrine,$customerId): Response
+    public function viewCartByCustomerIdAction(ManagerRegistry $doctrine): Response
     {
         $em = $doctrine->getManager();
         $findAllCart = $em->getRepository(CartItem::class)
-            ->findCartByCustomerId($customerId);
+            ->findCartByCustomerId($this->getUser()->getId());
         
-        return $this->json($viewAllProduct);
+        return $this->json($findAllCart);
     }
 
     /**
@@ -49,28 +50,51 @@ class CartController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $em = $doctrine->getManager();
 
-        $cartInfo = new CartInfo();
-        $cartInfo->setCustomerId($this->getUser()->getId());
-        $cartInfo->setAction('I');
-        $cartInfo->setAddTime(new \Datetime());
+        $checkCartInfo = $em->getRepository(CartInfo::class)
+            ->findOneBy([
+                'customerId' => $this->getUser()->getId(),
+                'action' => (['U','I'])
+            ]);
+        if(!$checkCartInfo){
+            $cartInfo = new CartInfo();
+            $cartInfo->setCustomerId($this->getUser()->getId());
+            $cartInfo->setAction('I');
+            $cartInfo->setAddTime(new \Datetime());
+    
+            $em->persist($cartInfo);
+            $em->flush();
 
-        $em->persist($cartInfo);
-        $em->flush();
-        
-        foreach($data['item'] as $key -> $item)
-        {
-            $cartItem = new CartItem();
-            $cartItem->setProductId($item['productId']);
-            $cartItem->setProductQuantity($item['quantity']);
-            $cartItem->setCartInfoId($cartInfo->getId());
-            $cartItem->setAction('I');
-            $cartItem->setAddTime(new \Datetime());
-
-            $em->persist($cartItem);
+            foreach($data['item'] as $key => $item)
+            {
+                $cartItem = new CartItem();
+                $cartItem->setProductId($item['productId']);
+                $cartItem->setProductQuantity($item['quantity']);
+                $cartItem->setCartInfoId($cartInfo->getId());
+                $cartItem->setAction('I');
+                $cartItem->setAddTime(new \Datetime());
+    
+                $em->persist($cartItem);
+            }
+            $em->flush();
+    
         }
-        $em->flush();
+        else{
+            foreach($data['item'] as $key => $item)
+            {
+                $cartItem = new CartItem();
+                $cartItem->setProductId($item['productId']);
+                $cartItem->setProductQuantity($item['quantity']);
+                $cartItem->setCartInfoId($cartInfo->getId());
+                $cartItem->setAction('I');
+                $cartItem->setAddTime(new \Datetime());
+    
+                $em->persist($cartItem);
+            }
+            $em->flush();
+        }
 
         $message['response']['success'] = 'Cart Successfully Added !';
+        return $this->json($message);
     }
 
     /**
@@ -111,6 +135,7 @@ class CartController extends AbstractController
         $em->flush();
 
         $message['response']['success'] = 'Cart Successfully Updated !';
+        return $this->json($message);
     }
 
     /**
