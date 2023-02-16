@@ -29,9 +29,9 @@ class CategoryController extends AbstractController
     }
 
     /**
-     * @Route("/category/view/{:id}", name="category_view_by_id", methods={"GET"})
+     * @Route("/category/view/{id}", name="category_view_by_id", methods={"GET"})
      */
-    public function viewByIdAction(ManagerRegistry $doctrine,$id): Response
+    public function viewByIdAction(ManagerRegistry $doctrine,int $id): Response
     {
         $em = $doctrine->getManager();
         $viewByIdCategory = $em->getRepository(Category::class)

@@ -29,9 +29,9 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/product/view/{:id}", name="product_view_by_id", methods={"GET"})
+     * @Route("/product/view/{id}", name="product_view_by_id", methods={"GET"})
      */
-    public function viewByIdAction(ManagerRegistry $doctrine,$id): Response
+    public function viewByIdAction(ManagerRegistry $doctrine,int $id): Response
     {
         $em = $doctrine->getManager();
         $viewByIdProduct = $em->getRepository(Product::class)
@@ -57,11 +57,12 @@ class ProductController extends AbstractController
 
         $checkProduct = $em->getRepository(Product::class)
             ->findOneBy([
-                'name' => $data['name']
+                'name' => $data['name'],
+                'action' => ['U','I']
             ]);
 
         if($checkProduct){
-            $product['response']['failed'] = "Product Already Exist at id : ".$checkProduct->getId();
+            $message['response']['failed'] = "Product Already Exist at id : ".$checkProduct->getId();
         }
         else{
             $product = new Product();

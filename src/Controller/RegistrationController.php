@@ -23,34 +23,42 @@ class RegistrationController extends AbstractController
           
         $em = $doctrine->getManager();
         $data = json_decode($request->getContent(),true);
-  
-        $user = new User();
 
-        $hashedPassword = $passwordHasher->hashPassword(
-            $user,
-            $data['password']
-        );
-
-        $user->setPassword($hashedPassword);
-        $user->setUsername($data['username']);
-
-        if(isset($data['email'])){
-            $user->setEmail($data['email']);
+        $checkName = $em->getRepository(User::class)
+            ->findOneBy([
+                "username" => $data['username']
+            ]);
+        if($checkName){
+            $message['response']['failed'] = "Username Already Exist";
         }
-        if(isset($data['type'])){
-            if($data['type'] == "customer"){
-                $user->setIsCustomer(1);
-                $user->setIsStaff(0);
-            }
-            elseif($data['type'] == "staff"){
-                $user->setIsStaff(1);
-                $user->setIsCustomer(0);
-            }
-        }
+        else{
+            $user = new User();
 
-        $em->persist($user);
-        $em->flush();
-  
-        return $this->json(['message' => 'Register Success !']);
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $data['password']
+            );
+
+            $user->setPassword($hashedPassword);
+            $user->setUsername($data['username']);
+
+            if(isset($data['email'])){
+                $user->setEmail($data['email']);
+            }
+            if(isset($data['type'])){
+                if($data['type'] == "customer"){
+                    $user->setIsCustomer(1);
+                    $user->setIsStaff(0);
+                }
+                elseif($data['type'] == "staff"){
+                    $user->setIsStaff(1);
+                    $user->setIsCustomer(0);
+                }
+            }
+            $em->persist($user);
+            $em->flush();
+            $message['response']['success'] = "Register Success";
+        }
+        return $this->json($message);
     }
 }

@@ -27,9 +27,9 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/cart/view/{:id}", name="cart_view_by_id", methods={"GET"})
+     * @Route("/cart/view/{id}", name="cart_view_by_id", methods={"GET"})
      */
-    public function viewByIdAction(ManagerRegistry $doctrine,$id): Response
+    public function viewByIdAction(ManagerRegistry $doctrine,int $id): Response
     {
         $em = $doctrine->getManager();
         $viewAllProduct = $em->getRepository(CartItem::class)
