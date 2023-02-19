@@ -39,6 +39,95 @@ class CheckoutInfoRepository extends ServiceEntityRepository
         }
     }
 
+    public function findCheckoutInfoHistoryByCustomerId($customerId): array
+    {
+        $sql = "
+            SELECT
+                checkout_info.id,
+                checkout_info.customer_id as customerId,
+                checkout_info.customer_address as customerAddress,
+                checkout_info.add_time as transactionDate,
+                checkout_info.cart_info_id as cartId,
+                checkout_info.order_note as orderNote,
+                checkout_info.status,
+                checkout_info.order_id as orderId,
+                checkout_info.payment_code as paymentCode,
+                cart_info.price as totalPrice
+            FROM
+                checkout_info
+            LEFT JOIN (
+                SELECT
+                    cart_info.id,
+                    cart_item.price
+                FROM
+                    cart_info
+                LEFT JOIN (
+                    SELECT
+                        cart_item.cart_info_id as id,
+                        SUM(product.price * cart_item.product_quantity) as price
+                    FROM
+                        cart_item
+                    LEFT JOIN product ON cart_item.product_id = product.id
+                    WHERE
+                        cart_item.action != 'D'
+                    GROUP BY cart_item.cart_info_id
+                ) cart_item ON cart_item.id = cart_info.id
+                WHERE
+                    cart_info.action != 'D'
+                ) cart_info ON cart_info.id = checkout_info.cart_info_id
+            WHERE
+                checkout_info.customer_id = ".$customerId."
+            ORDER BY checkout_info.add_time DESC
+        ";
+        return $this->getEntityManager()->getConnection()->prepare($sql)->execute()->fetchAll();
+    }
+
+    public function findCheckoutInfoByCustomerId($customerId): array
+    {
+        $sql = "
+            SELECT
+                checkout_info.id,
+                checkout_info.customer_id as customerId,
+                checkout_info.customer_address as customerAddress,
+                checkout_info.add_time as transactionDate,
+                checkout_info.cart_info_id as cartId,
+                checkout_info.order_note as orderNote,
+                checkout_info.status,
+                checkout_info.order_id as orderId,
+                checkout_info.payment_code as paymentCode,
+                cart_info.price as totalPrice
+            FROM
+                checkout_info
+            LEFT JOIN (
+                SELECT
+                cart_info.id,
+                cart_item.price,
+                cart_info.action
+                FROM
+                cart_info
+                LEFT JOIN (
+                    SELECT
+                    cart_item.cart_info_id as id,
+                    SUM(product.price * cart_item.product_quantity) as price
+                    FROM
+                    cart_item
+                    LEFT JOIN product ON cart_item.product_id = product.id
+                    WHERE
+                    cart_item.action != 'D'
+                    GROUP BY cart_item.cart_info_id
+                ) cart_item ON cart_item.id = cart_info.id
+                WHERE
+                    cart_info.action != 'D'
+                ) cart_info ON cart_info.id = checkout_info.cart_info_id
+            WHERE
+                checkout_info.action != 'D' AND
+                cart_info.action != 'D' AND
+                checkout_info.customer_id = 2
+            ORDER BY checkout_info.add_time DESC
+        ";
+        return $this->getEntityManager()->getConnection()->prepare($sql)->execute()->fetchAll();
+    }
+
 //    /**
 //     * @return CheckoutInfo[] Returns an array of CheckoutInfo objects
 //     */

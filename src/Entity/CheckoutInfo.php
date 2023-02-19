@@ -23,9 +23,6 @@ class CheckoutInfo
     #[ORM\Column(length: 255)]
     private ?string $customerAddress = null;
 
-    #[ORM\Column]
-    private ?int $totalPrice = null;
-
     #[ORM\Column(length: 255)]
     private ?string $action = null;
 
@@ -34,6 +31,18 @@ class CheckoutInfo
 
     #[ORM\Column]
     private ?int $cartInfoId = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $orderNote = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
+
+    #[ORM\Column(length: 255,nullable: True)]
+    private ?string $orderId = null;
+
+    #[ORM\Column(length: 255,nullable: True)]
+    private ?string $PaymentCode = null;
 
     public function getId(): ?int
     {
@@ -64,14 +73,14 @@ class CheckoutInfo
         return $this;
     }
 
-    public function getTotalPrice(): ?int
+    public function getCustomerAddress(): ?string
     {
-        return $this->totalPrice;
+        return $this->customerAddress;
     }
 
-    public function setTotalPrice(int $totalPrice): self
+    public function setCustomerAddress(string $customerAddress): self
     {
-        $this->totalPrice = $totalPrice;
+        $this->customerAddress = $customerAddress;
 
         return $this;
     }
@@ -108,6 +117,54 @@ class CheckoutInfo
     public function setCartInfoId(int $cartInfoId): self
     {
         $this->cartInfoId = $cartInfoId;
+
+        return $this;
+    }
+
+    public function getOrderNote(): ?string
+    {
+        return $this->orderNote;
+    }
+
+    public function setOrderNote(string $orderNote): self
+    {
+        $this->orderNote = $orderNote;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getOrderId(): ?string
+    {
+        return $this->orderId;
+    }
+
+    public function setOrderId(string $orderId): self
+    {
+        $this->orderId = $orderId;
+
+        return $this;
+    }
+
+    public function getPaymentCode(): ?string
+    {
+        return $this->PaymentCode;
+    }
+
+    public function setPaymentCode(string $PaymentCode): self
+    {
+        $this->PaymentCode = $PaymentCode;
 
         return $this;
     }
