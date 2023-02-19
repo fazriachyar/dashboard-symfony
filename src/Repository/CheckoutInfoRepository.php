@@ -100,20 +100,20 @@ class CheckoutInfoRepository extends ServiceEntityRepository
                 checkout_info
             LEFT JOIN (
                 SELECT
-                cart_info.id,
-                cart_item.price,
-                cart_info.action
+                    cart_info.id,
+                    cart_item.price,
+                    cart_info.action
                 FROM
                 cart_info
                 LEFT JOIN (
                     SELECT
-                    cart_item.cart_info_id as id,
-                    SUM(product.price * cart_item.product_quantity) as price
+                        cart_item.cart_info_id as id,
+                        SUM(product.price * cart_item.product_quantity) as price
                     FROM
-                    cart_item
+                        cart_item
                     LEFT JOIN product ON cart_item.product_id = product.id
                     WHERE
-                    cart_item.action != 'D'
+                        cart_item.action != 'D'
                     GROUP BY cart_item.cart_info_id
                 ) cart_item ON cart_item.id = cart_info.id
                 WHERE
