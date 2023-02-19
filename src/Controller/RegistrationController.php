@@ -55,6 +55,9 @@ class RegistrationController extends AbstractController
                     $user->setIsCustomer(0);
                 }
             }
+            if(isset($data['fullName'])){
+                $user->setFullName($data['fullName']);
+            }
             $em->persist($user);
             $em->flush();
             $message['response']['success'] = "Register Success";

@@ -32,6 +32,9 @@ class CheckoutInfo
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $addTime = null;
 
+    #[ORM\Column]
+    private ?int $cartInfoId = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -57,18 +60,6 @@ class CheckoutInfo
     public function setCustomerContact(string $customerContact): self
     {
         $this->customerContact = $customerContact;
-
-        return $this;
-    }
-
-    public function getCustomerAddress(): ?string
-    {
-        return $this->customerAddress;
-    }
-
-    public function setCustomerAddress(string $customerAddress): self
-    {
-        $this->customerAddress = $customerAddress;
 
         return $this;
     }
@@ -105,6 +96,18 @@ class CheckoutInfo
     public function setAddTime(\DateTimeInterface $addTime): self
     {
         $this->addTime = $addTime;
+
+        return $this;
+    }
+
+    public function getCartInfoId(): ?int
+    {
+        return $this->cartInfoId;
+    }
+
+    public function setCartInfoId(int $cartInfoId): self
+    {
+        $this->cartInfoId = $cartInfoId;
 
         return $this;
     }

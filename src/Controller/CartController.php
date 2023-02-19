@@ -36,7 +36,7 @@ class CartController extends AbstractController
         $viewAllProduct = $em->getRepository(CartItem::class)
             ->findOneBy([
                 "id" => $id,
-                "action" => ['I','U']
+                "action" => ['U','I']
             ]);
         
         return $this->json($viewAllProduct);
@@ -53,7 +53,7 @@ class CartController extends AbstractController
         $checkCartInfo = $em->getRepository(CartInfo::class)
             ->findOneBy([
                 'customerId' => $this->getUser()->getId(),
-                'action' => (['U','I'])
+                'action' => ['U','I']
             ]);
         if(!$checkCartInfo){
             $cartInfo = new CartInfo();
@@ -178,7 +178,8 @@ class CartController extends AbstractController
 
         $checkCartItem = $em->getRepository(CartItem::class)
             ->findOneBy([
-                'id' => $data['id']
+                'id' => $data['id'],
+                'action' => ['U','I']
             ]);
 
         if(!$checkCartItem){
@@ -202,10 +203,12 @@ class CartController extends AbstractController
     {
         $em = $doctrine->getManager();
         $data = json_decode($request->getContent(), true);
+        $allId = implode(",",$data['id']);
 
         $checkCartItem = $em->getRepository(CartItem::class)
             ->findBy([
-                'id' => $data['id']
+                'id' => $allId,
+                'action' => ['U','I']
             ]);
 
         if(!$checkCartItem){
@@ -213,7 +216,7 @@ class CartController extends AbstractController
         }
         else{
             $softDeleteCartItem = $em->getRepository(CartItem::class)
-                ->removeCartItemByArrayId($data['id']);
+                ->removeCartItemByArrayId($allId);
 
             $message['response']['success'] = "Success Delete Data";
         }

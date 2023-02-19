@@ -77,7 +77,7 @@ class CartItemRepository extends ServiceEntityRepository
                 cart_item.action != 'D'
         ";
 
-        return $this->getEntityManager()->getConnection()->prepare($sql)->executeQuery();
+        return $this->getEntityManager()->getConnection()->prepare($sql)->execute()->fetchAll();
     }
 
     public function removeCartItemByArrayId($arrayId)
@@ -89,11 +89,11 @@ class CartItemRepository extends ServiceEntityRepository
                 cart_item.action = 'D',
                 cart_item.add_time = now()
             WHERE
-                cart_item.cart_info_id IN (".$arrayId.") AND
+                cart_item.id IN (".$arrayId.") AND
                 cart_item.action != 'D'
         ";
 
-        return $this->getEntityManager()->getConnection()->prepare($sql)->executeQuery();
+        return $this->getEntityManager()->getConnection()->prepare($sql)->execute()->fetchAll();
     }
 
 //    /**
