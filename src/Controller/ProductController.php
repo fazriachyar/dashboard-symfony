@@ -69,6 +69,7 @@ class ProductController extends AbstractController
             $product->setName($data['name']);
             $product->setCategoryId($data['categoryId']);
             $product->setPrice($data['price']);
+            $product->setColor($data['color']);
             $product->setAction('I');
             $product->setAddTime(new \Datetime());
     
@@ -102,6 +103,7 @@ class ProductController extends AbstractController
             $product->setAddTime(new \DateTime());
             $product->setPrice($data['price']);
             $product->setCategoryId($data['categoryId']);
+            $product->setColor($data['color']);
             $em->persist($product);
             $em->flush();
         }

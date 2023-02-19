@@ -36,7 +36,7 @@ class CartController extends AbstractController
         $viewAllProduct = $em->getRepository(CartItem::class)
             ->findOneBy([
                 "id" => $id,
-                "action" => ['I','U']
+                "action" => ['U','I']
             ]);
         
         return $this->json($viewAllProduct);
@@ -53,7 +53,7 @@ class CartController extends AbstractController
         $checkCartInfo = $em->getRepository(CartInfo::class)
             ->findOneBy([
                 'customerId' => $this->getUser()->getId(),
-                'action' => (['U','I'])
+                'action' => ['U','I']
             ]);
         if(!$checkCartInfo){
             $cartInfo = new CartInfo();
@@ -178,7 +178,8 @@ class CartController extends AbstractController
 
         $checkCartItem = $em->getRepository(CartItem::class)
             ->findOneBy([
-                'id' => $data['id']
+                'id' => $data['id'],
+                'action' => ['U','I']
             ]);
 
         if(!$checkCartItem){
@@ -189,6 +190,34 @@ class CartController extends AbstractController
             $em->persist($checkCartItem);
             $em->flush();
     
+            $message['response']['success'] = "Success Delete Data";
+        }
+
+        return $this->json($message);
+    }
+
+    /**
+     * @Route("/cart/deleteall", name="cart_delete_all", methods={"POST"})
+     */
+    public function deleteAllAction(ManagerRegistry $doctrine, Request $request): Response
+    {
+        $em = $doctrine->getManager();
+        $data = json_decode($request->getContent(), true);
+        $allId = implode(",",$data['id']);
+
+        $checkCartItem = $em->getRepository(CartItem::class)
+            ->findBy([
+                'id' => $allId,
+                'action' => ['U','I']
+            ]);
+
+        if(!$checkCartItem){
+            $message['response']['failed'] = "Cart Item Not Found";
+        }
+        else{
+            $softDeleteCartItem = $em->getRepository(CartItem::class)
+                ->removeCartItemByArrayId($allId);
+
             $message['response']['success'] = "Success Delete Data";
         }
 
