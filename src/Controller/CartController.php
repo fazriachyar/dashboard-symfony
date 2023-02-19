@@ -194,4 +194,30 @@ class CartController extends AbstractController
 
         return $this->json($message);
     }
+
+    /**
+     * @Route("/cart/deleteall", name="cart_delete_all", methods={"POST"})
+     */
+    public function deleteAllAction(ManagerRegistry $doctrine, Request $request): Response
+    {
+        $em = $doctrine->getManager();
+        $data = json_decode($request->getContent(), true);
+
+        $checkCartItem = $em->getRepository(CartItem::class)
+            ->findBy([
+                'id' => $data['id']
+            ]);
+
+        if(!$checkCartItem){
+            $message['response']['failed'] = "Cart Item Not Found";
+        }
+        else{
+            $softDeleteCartItem = $em->getRepository(CartItem::class)
+                ->removeCartItemByArrayId($data['id']);
+
+            $message['response']['success'] = "Success Delete Data";
+        }
+
+        return $this->json($message);
+    }
 }

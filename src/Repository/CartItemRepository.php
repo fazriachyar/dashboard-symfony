@@ -48,6 +48,7 @@ class CartItemRepository extends ServiceEntityRepository
                 cart_info.customer_id as customerId,
                 product.name as productName,
                 product.price * cart_item.product_quantity as price,
+                product.color,
                 cart_item.add_time as addTime
             FROM
                 cart_item
@@ -65,8 +66,6 @@ class CartItemRepository extends ServiceEntityRepository
 
     public function removeCartItem($cartInfoId)
     {
-        $conn = $this->getEntityManager()->getConnection();
-
         $sql = "
             UPDATE
                 cart_item
@@ -78,7 +77,23 @@ class CartItemRepository extends ServiceEntityRepository
                 cart_item.action != 'D'
         ";
 
-        return $conn->prepare($sql)->executeQuery();
+        return $this->getEntityManager()->getConnection()->prepare($sql)->executeQuery();
+    }
+
+    public function removeCartItemByArrayId($arrayId)
+    {
+        $sql = "
+            UPDATE
+                cart_item
+            SET
+                cart_item.action = 'D',
+                cart_item.add_time = now()
+            WHERE
+                cart_item.cart_info_id IN (".$arrayId.") AND
+                cart_item.action != 'D'
+        ";
+
+        return $this->getEntityManager()->getConnection()->prepare($sql)->executeQuery();
     }
 
 //    /**
